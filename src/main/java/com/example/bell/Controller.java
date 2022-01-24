@@ -1,0 +1,37 @@
+package com.example.bell;
+
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.Bucket4j;
+import io.github.bucket4j.Refill;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.time.Duration;
+
+@RestController
+public class Controller {
+
+    private final Bucket bucket;
+
+    public Controller() {
+        Bandwidth limit = Bandwidth.classic(50, Refill.greedy(50, Duration.ofMinutes(1)));
+        this.bucket = Bucket4j.builder()
+                .addLimit(limit)
+                .build();
+    }
+
+    @PostMapping(value = "/api/v1/perimeter/square")
+    public ResponseEntity<Perimeter> square(@RequestBody Dimension dimensions) {
+
+            if (bucket.tryConsume(1)) {
+                return ResponseEntity.ok(new Perimeter("square",
+                        (double) 2 * (dimensions.getLength() + dimensions.getBreadth())));
+            }
+
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
+    }
+}
