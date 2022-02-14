@@ -24,14 +24,13 @@ public class Controller {
                 .build();
     }
 
-    @PostMapping(value = "/api/v1/perimeter/square")
-    public ResponseEntity<Perimeter> square(@RequestBody Dimension dimensions) {
+    @PostMapping(value = "/api/v1/perimeter/rectangle")
+    public ResponseEntity<Perimeter> rectangle(@RequestBody Dimension dimensions) {
 
             if (bucket.tryConsume(1)) {
-                return ResponseEntity.ok(new Perimeter("square",
+                return ResponseEntity.ok(new Perimeter("rectangle",
                         (double) 2 * (dimensions.getLength() + dimensions.getBreadth())));
             }
-
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
     }
 }
